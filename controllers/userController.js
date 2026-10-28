@@ -42,3 +42,33 @@ module.exports.registerUser = (req, res) => {
     .then(() => res.status(201).send({ message: "Registered Successfully" }))
     .catch((error) => errorHandler(error, req, res));
 };
+
+// User Authentication
+module.exports.loginUser = (req, res) => {
+
+  if (!req.body.email || !req.body.email.includes("@")) {
+    return res.status(400).send({ error: "Invalid Email" });
+  }
+
+  return User.findOne({ email: req.body.email })
+    .then((result) => {
+
+      if (!result) {
+        return res.status(404).send({ error: "No Email Found" });
+      }
+
+      const isPasswordCorrect = bcrypt.compareSync(
+        req.body.password,
+        result.password
+      );
+
+      if (!isPasswordCorrect) {
+        return res.status(401).send({ error: "Email and password do not match" });
+      }
+
+      return res.status(200).send({
+        access: auth.createAccessToken(result)
+      });
+    })
+    .catch((error) => errorHandler(error, req, res));
+};
