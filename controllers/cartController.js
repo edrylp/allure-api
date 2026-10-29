@@ -84,3 +84,62 @@ module.exports.addToCart = (req, res) => {
             });
         });
 };
+
+// Update Product Quantity in Cart
+module.exports.updateCartQuantity = (req, res) => {
+    const userId = req.user.id;
+    const { productId, newQuantity } = req.body;
+
+    if (!productId || !newQuantity) {
+        return res.status(400).send({
+            message: "Product ID and new quantity are required"
+        });
+    }
+
+    return Cart.findOne({ userId })
+        .then(cart => {
+            if (!cart) {
+                return res.status(200).send({
+                    message: "Cart not found"
+                });
+            }
+
+            const itemIndex = cart.cartItems.findIndex(
+                item => item.productId.toString() === productId
+            );
+
+            if (itemIndex === -1) {
+                return res.status(200).send({
+                    message: "Item not found in cart"
+                });
+            }
+
+            const item = cart.cartItems[itemIndex];
+            const pricePerItem = item.subtotal / item.quantity;
+
+            item.quantity = newQuantity;
+            item.subtotal = pricePerItem * newQuantity;
+
+            cart.totalPrice = cart.cartItems.reduce(
+                (total, item) => total + item.subtotal,
+                0
+            );
+
+            return cart.save();
+        })
+        .then(updatedCart => {
+            if (!updatedCart || updatedCart.message) return;
+
+            return res.status(200).send({
+                message: "Cart updated successfully",
+                cart: updatedCart
+            });
+        })
+        .catch(error => {
+            console.error(error);
+            return res.status(500).send({
+                message: "Error updating cart",
+                error: error
+            });
+        });
+};
