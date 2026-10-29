@@ -74,3 +74,106 @@ module.exports.loginUser = (req, res) => {
     })
     .catch((error) => errorHandler(error, req, res));
 };
+
+// Get Profile
+module.exports.getProfile = (req, res) => {
+
+  return User.findById(req.user.id)
+    .select("-password")
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({ message: "User not found" });
+      }
+
+      return res.status(200).send(user);
+    })
+    .catch((error) => errorHandler(error, req, res));
+};
+
+// Get All Profiles
+module.exports.getProfiles = (req, res) => {
+
+  return User.find({
+      isAdmin: false, 
+      _id: { $ne: new mongoose.Types.ObjectId(req.user.id) }
+  })
+  .select("-password")
+  .then(users => {
+      return res.status(200).send(users);
+  })
+  .catch(error => {
+      console.error("Get profiles error:", error);
+      return res.status(500).send({
+          error: "Failed to retrieve profiles"
+      });
+  });
+};
+
+// Get A Specific Profile
+module.exports.getSingleProfile = (req, res) => {
+
+  const profileId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(profileId)) {
+    return res.status(400).send({ error: "Invalid profile ID" });
+  }
+
+  return User.findById(profileId)
+  .select("-password")
+  .then(user => {
+
+      if (!user) {
+        return res.status(404).send({ error: "Profile not found" });
+      }
+
+      // 🚨 BLOCK ADMIN PROFILE VIEW
+      if (user.isAdmin === true) {
+        return res.status(403).send({
+          error: "You are not allowed to view this profile"
+        });
+      }
+
+      return res.status(200).send(user);
+  })
+  .catch(err => {
+      console.error("Single profile error:", err);
+      return res.status(500).send({ error: "Failed to retrieve profile" });
+  });
+};
+
+// Update user to admin
+module.exports.updateUser = (req, res) => {
+
+  const userId = req.params.id;
+
+  return User.findByIdAndUpdate(
+      userId,
+      { isAdmin: true },
+      { new: true }
+  )
+  .then(user => {
+      if (!user) {
+          return res.status(404).send({ error: "User not Found" });
+      }
+
+      return res.status(200).send({ updatedUser: user });
+  })
+  .catch(error => {
+      return res.status(500).send({
+          error: "Failed in Find"
+      });
+  });
+};
+
+// Update Password
+module.exports.updatePassword = (req, res) => {
+
+  const { password } = req.body;
+
+  bcrypt.hash(password, 12)
+  .then(hashedPassword =>
+    User.findByIdAndUpdate(req.user.id, { password: hashedPassword })
+  )
+  .then(() => res.status(201).send({ message: "Password reset successfully" }))
+  .catch(() => res.status(500).send({ error: "Password reset failed" }));
+};
