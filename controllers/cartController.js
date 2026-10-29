@@ -180,3 +180,24 @@ module.exports.removeFromCart = (req, res) => {
         })
         .catch((error) => errorHandler(error, req, res));
 };
+
+// Clear Cart
+module.exports.clearCart = (req, res) => {
+    const userId = req.user.id;
+
+    return Cart.findOne({ userId })
+        .then(cart => {
+            cart.cartItems = [];
+            cart.totalPrice = 0;
+            return cart.save();
+        })
+        .then(updatedCart => {
+            if (updatedCart) {
+                return res.status(200).send({
+                    message: "Cart cleared successfully",
+                    cart: updatedCart
+                });
+            }
+        })
+        .catch((error) => errorHandler(error, req, res));
+};
