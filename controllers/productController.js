@@ -86,3 +86,39 @@ module.exports.getSingleProduct = (req, res) => {
             });
         });
 };
+
+// Update Product Info (Admin-only)
+module.exports.updateProduct = (req, res) => {
+    const { productId } = req.params;
+
+    return Product.findByIdAndUpdate(
+        productId,
+        req.body, 
+        { new: true, runValidators: true }
+    )
+        .then(updatedProduct => {
+            if (!updatedProduct) {
+                return res.status(404).send({
+                    error: "Product not found"
+                });
+            }
+
+            return res.status(200).send({
+                success: true,
+                message: "Product updated successfully",
+                product: updatedProduct
+            });
+        })
+        .catch(error => {
+            if (error.code === 11000) {
+                return res.status(400).send({
+                    message: "A product with this name already exists"
+                });
+            }
+            console.error(error);
+            return res.status(500).send({
+                message: "Error updating product",
+                error: error
+            });
+        });
+};
