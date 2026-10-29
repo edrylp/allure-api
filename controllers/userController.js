@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const auth = require("../auth.js");
+const { errorHandler } = auth;
 
 // User Registration
 module.exports.registerUser = (req, res) => {
