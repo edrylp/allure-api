@@ -161,3 +161,42 @@ module.exports.archiveProduct = (req, res) => {
             });
         });
 };
+
+// Activate Product (Admin-only)
+module.exports.activateProduct = (req, res) => {
+    const { productId } = req.params;
+
+    return Product.findById(productId)
+        .then(product => {
+            if (!product) {
+                return res.status(404).send({
+                    error: "Product not found"
+                });
+            }
+
+            if (product.isActive === true) {
+                return res.status(200).send({
+                    message: "Product is already active",
+                    product: product
+                });
+            }
+
+            product.isActive = true;
+            return product.save();
+        })
+        .then(updatedProduct => {
+            if (!updatedProduct || updatedProduct.isActive === false) return;
+
+            return res.status(200).send({
+                success: true,
+                message: "Product activated successfully"
+            });
+        })
+        .catch(error => {
+            console.error(error);
+            return res.status(400).send({
+                message: "Error activating product",
+                error: error
+            });
+        });
+};
