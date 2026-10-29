@@ -230,3 +230,30 @@ module.exports.getAllActiveServices = (req, res) => {
       });
     });
 };
+
+// Get Single Service
+module.exports.getSingleService = (req, res) => {
+  const { serviceId } = req.params;
+
+  return UserService.findById(serviceId)
+    .populate("serviceTypeId", "name description category icon")
+    .populate("providerId", "firstName lastName profileImage age gender isAdmin")
+    .then((service) => {
+      if (!service) {
+        return res.status(404).send({ message: "Service not found" });
+      }
+
+      if (service.providerId && service.providerId.isAdmin === true) {
+        return res.status(404).send({ message: "Service not found" });
+      }
+
+      return res.status(200).send(service);
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).send({
+        message: "Error retrieving service",
+        error,
+      });
+    });
+};
