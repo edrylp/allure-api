@@ -107,3 +107,35 @@ module.exports.updateMyService = (req, res) => {
       });
     });
 };
+
+// USER - Toggle Own Service Status
+module.exports.toggleMyServiceStatus = (req, res) => {
+  const { serviceId } = req.params;
+
+  return UserService.findOne({ _id: serviceId, providerId: req.user.id })
+    .then((service) => {
+      if (!service) {
+        return res.status(404).send({
+          message: "Service not found or you don't have permission",
+        });
+      }
+
+      service.isActive = !service.isActive;
+      return service.save();
+    })
+    .then((updatedService) => {
+      if (!updatedService) return;
+
+      return res.status(200).send({
+        message: `Service ${updatedService.isActive ? "activated" : "deactivated"} successfully`,
+        service: updatedService,
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).send({
+        message: "Error updating service status",
+        error,
+      });
+    });
+};
