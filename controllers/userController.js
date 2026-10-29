@@ -89,3 +89,22 @@ module.exports.getProfile = (req, res) => {
     })
     .catch((error) => errorHandler(error, req, res));
 };
+
+// Get All Profiles
+module.exports.getProfiles = (req, res) => {
+
+  return User.find({
+      isAdmin: false, 
+      _id: { $ne: new mongoose.Types.ObjectId(req.user.id) }
+  })
+  .select("-password")
+  .then(users => {
+      return res.status(200).send(users);
+  })
+  .catch(error => {
+      console.error("Get profiles error:", error);
+      return res.status(500).send({
+          error: "Failed to retrieve profiles"
+      });
+  });
+};
