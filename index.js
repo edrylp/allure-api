@@ -15,10 +15,12 @@ app.use(express.urlencoded({ extended: true }));
 const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
 const serviceRoutes = require("./routes/serviceRoutes");
+const cartRoutes = require("./routes/cartRoutes");
 
 app.use("/users", userRoutes);
 app.use("/products", productRoutes);
 app.use("/services", serviceRoutes);
+app.use("/cart", cartRoutes);
 
 // Local development only
 if (require.main === module) {
