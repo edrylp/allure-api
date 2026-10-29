@@ -65,3 +65,24 @@ module.exports.getActiveProducts = (req, res) => {
             });
         });
 };
+
+// Retrieve Single Product (Public)
+module.exports.getSingleProduct = (req, res) => {
+    const { productId } = req.params;
+
+    return Product.findById(productId)
+        .then(product => {
+            if (!product) {
+                return res.status(200).send(null);
+            }
+
+            return res.status(200).send(product);
+        })
+        .catch(error => {
+            console.error(error);
+            return res.status(500).send({
+                message: "Error retrieving product",
+                error: error
+            });
+        });
+};
