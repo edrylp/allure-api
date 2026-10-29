@@ -50,3 +50,18 @@ module.exports.getAllProducts = (req, res) => {
             });
         });
 };
+
+// Retrieve All Active Products (Public)
+module.exports.getActiveProducts = (req, res) => {
+    return Product.find({ isActive: true })
+        .then(activeProducts => {
+            return res.status(200).send(activeProducts);
+        })
+        .catch(error => {
+            console.error(error);
+            return res.status(500).send({
+                message: "Error retrieving active products",
+                error: error
+            });
+        });
+};
