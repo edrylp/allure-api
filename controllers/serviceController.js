@@ -164,3 +164,19 @@ module.exports.deleteMyService = (req, res) => {
       });
     });
 };
+
+// ADMIN - Get All User Services
+module.exports.adminGetAllServices = (req, res) => {
+  return UserService.find({})
+    .populate("serviceTypeId", "name description category icon")
+    .populate("providerId", "firstName lastName email profileImage isAdmin")
+    .sort({ createdOn: -1 })
+    .then((services) => res.status(200).send(services))
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).send({
+        message: "Error retrieving all services",
+        error,
+      });
+    });
+};
