@@ -69,3 +69,41 @@ module.exports.getMyServices = (req, res) => {
       });
     });
 };
+
+// USER - Update Own Service
+module.exports.updateMyService = (req, res) => {
+  const { serviceId } = req.params;
+  const { customDescription, price, duration, availabilityNotes, icon } = req.body;
+
+  return UserService.findOne({ _id: serviceId, providerId: req.user.id })
+    .then((service) => {
+      if (!service) {
+        return res.status(404).send({
+          message: "Service not found or you don't have permission to update it",
+        });
+      }
+
+      if (customDescription !== undefined) service.customDescription = customDescription;
+      if (price !== undefined) service.price = price;
+      if (duration !== undefined) service.duration = duration;
+      if (availabilityNotes !== undefined) service.availabilityNotes = availabilityNotes;
+      if (icon !== undefined) service.icon = icon;
+
+      return service.save();
+    })
+    .then((updatedService) => {
+      if (!updatedService) return;
+
+      return res.status(200).send({
+        message: "Service updated successfully",
+        service: updatedService,
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).send({
+        message: "Error updating service",
+        error,
+      });
+    });
+};
