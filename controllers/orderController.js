@@ -41,3 +41,28 @@ module.exports.createOrder = (req, res) => {
             return res.status(500).send({ message: "Error creating order", error });
         });
 };
+
+// Retrieve Logged-in User Orders
+module.exports.retrieveMyOrders = (req, res) => {
+    const userId = req.user.id;
+
+    return Order.find({ userId })
+        .then(orders => {
+            if (!orders || orders.length === 0) {
+                return res.status(200).send({
+                    message: "No orders found"
+                });
+            }
+
+            return res.status(200).send({
+                orders: orders
+            });
+        })
+        .catch(error => {
+            console.error(error);
+            return res.status(500).send({
+                message: "Error retrieving orders",
+                error: error
+            });
+        });
+};
