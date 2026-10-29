@@ -54,3 +54,18 @@ module.exports.addServiceToProfile = (req, res) => {
       });
     });
 };
+
+// Get Services
+module.exports.getMyServices = (req, res) => {
+  return UserService.find({ providerId: req.user.id })
+    .populate("serviceTypeId", "name description category icon")
+    .sort({ createdOn: -1 })
+    .then((services) => res.status(200).send(services))
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).send({
+        message: "Error retrieving your services",
+        error,
+      });
+    });
+};
