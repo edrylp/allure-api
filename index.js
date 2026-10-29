@@ -13,9 +13,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 const userRoutes = require("./routes/userRoutes");
-
+const productRoutes = require("./routes/product");
 
 app.use("/users", userRoutes);
+app.use("/products", productRoutes);
+
 
 // Local development only
 if (require.main === module) {
