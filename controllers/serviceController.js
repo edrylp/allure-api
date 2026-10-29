@@ -206,3 +206,27 @@ module.exports.adminDeleteService = (req, res) => {
       });
     });
 };
+
+// Get All Active Services
+module.exports.getAllActiveServices = (req, res) => {
+  return UserService.find({ isActive: true })
+    .populate("serviceTypeId", "name description category icon")
+    .populate({
+      path: "providerId",
+      match: { isAdmin: false }, 
+      select: "firstName lastName profileImage age gender isAdmin",
+    })
+    .sort({ createdOn: -1 })
+    .then((services) => {
+      // providerId becomes null if provider is admin due to match filter
+      const filtered = (services || []).filter((s) => s.providerId !== null);
+      return res.status(200).send(filtered);
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).send({
+        message: "Error retrieving services",
+        error,
+      });
+    });
+};
