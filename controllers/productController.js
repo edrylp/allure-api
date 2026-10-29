@@ -216,3 +216,22 @@ module.exports.searchProduct = (req, res) => {
         })
         .catch(error => errorHandler(error, req, res));
 };
+
+// Search Products by Price Range
+module.exports.searchByPrice = (req, res) => {
+    const {minPrice, maxPrice} = req.body;
+
+    if (minPrice === undefined || maxPrice === undefined) {
+        return res.status(400).send({ message: "Minimum Price and Maximum Price are required" });
+    }
+    return Product.find({
+        price: {$gte: minPrice, $lte: maxPrice}
+    })
+        .then(products => {
+            if (!products || products.length === 0) {
+                return res.status(404).send({ message: "No products available in this price range" });
+            }
+            return res.status(200).send(products);
+        })
+        .catch(error => errorHandler(error, req, res));
+};
