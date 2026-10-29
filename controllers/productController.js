@@ -122,3 +122,42 @@ module.exports.updateProduct = (req, res) => {
             });
         });
 };
+
+// Archive Product (Admin-only)
+module.exports.archiveProduct = (req, res) => {
+    const { productId } = req.params;
+
+    return Product.findById(productId)
+        .then(product => {
+            if (!product) {
+                return res.status(404).send({
+                    error: "Product not found"
+                });
+            }
+
+            if (product.isActive === false) {
+                return res.status(200).send({
+                    message: "Product is already archived",
+                    product: product
+                });
+            }
+
+            product.isActive = false;
+            return product.save();
+        })
+        .then(updatedProduct => {
+            if (!updatedProduct || updatedProduct.isActive === true) return;
+
+            return res.status(200).send({
+                success: true,
+                message: "Product archived successfully"
+            });
+        })
+        .catch(error => {
+            console.error(error);
+            return res.status(500).send({
+                message: "Error archiving product",
+                error: error
+            });
+        });
+};
