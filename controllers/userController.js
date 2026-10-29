@@ -140,3 +140,27 @@ module.exports.getSingleProfile = (req, res) => {
       return res.status(500).send({ error: "Failed to retrieve profile" });
   });
 };
+
+// Update user to admin
+module.exports.updateUser = (req, res) => {
+
+  const userId = req.params.id;
+
+  return User.findByIdAndUpdate(
+      userId,
+      { isAdmin: true },
+      { new: true }
+  )
+  .then(user => {
+      if (!user) {
+          return res.status(404).send({ error: "User not Found" });
+      }
+
+      return res.status(200).send({ updatedUser: user });
+  })
+  .catch(error => {
+      return res.status(500).send({
+          error: "Failed in Find"
+      });
+  });
+};
