@@ -35,3 +35,18 @@ module.exports.createProduct = (req, res) => {
             });
         });
 };
+
+// Retrieve All Products (Admin-only)
+module.exports.getAllProducts = (req, res) => {
+    return Product.find({})
+        .then(products => {
+            return res.status(200).send(products);
+        })
+        .catch(error => {
+            console.error(error);
+            return res.status(500).send({
+                message: "Error retrieving products",
+                error: error
+            });
+        });
+};
