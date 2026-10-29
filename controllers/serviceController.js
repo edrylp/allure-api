@@ -180,3 +180,29 @@ module.exports.adminGetAllServices = (req, res) => {
       });
     });
 };
+
+// Delete Any User Service
+module.exports.adminDeleteService = (req, res) => {
+  const { serviceId } = req.params;
+
+  return UserService.findByIdAndDelete(serviceId)
+    .then((deletedService) => {
+      if (!deletedService) {
+        return res.status(404).send({
+          message: "Service not found",
+        });
+      }
+
+      return res.status(200).send({
+        message: "Service deleted successfully",
+        service: deletedService,
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).send({
+        message: "Error deleting service",
+        error,
+      });
+    });
+};
