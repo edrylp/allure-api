@@ -139,3 +139,28 @@ module.exports.toggleMyServiceStatus = (req, res) => {
       });
     });
 };
+
+// Delete Own Service
+module.exports.deleteMyService = (req, res) => {
+  const { serviceId } = req.params;
+
+  return UserService.findOneAndDelete({ _id: serviceId, providerId: req.user.id })
+    .then((deletedService) => {
+      if (!deletedService) {
+        return res.status(404).send({
+          message: "Service not found or you don't have permission to delete it",
+        });
+      }
+
+      return res.status(200).send({
+        message: "Service removed from your profile successfully",
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.status(500).send({
+        message: "Error deleting service",
+        error,
+      });
+    });
+};
