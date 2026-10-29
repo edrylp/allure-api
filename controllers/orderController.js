@@ -83,3 +83,29 @@ module.exports.retrieveAllOrders = (req, res) => {
             });
         });
 };
+
+// Get An Order By ID
+module.exports.getOrderById = (req, res) => {
+    const { orderId } = req.params;
+    const userId = req.user.id;
+
+    return Order.findOne({ _id: orderId, userId })
+        .populate({
+            path: 'productsOrdered.productId',
+            model: 'UserService',
+            populate: [
+                { path: 'providerId', model: 'User', select: 'firstName lastName profileImage age gender' },
+                { path: 'serviceTypeId', model: 'Product', select: 'name category' }
+            ]
+        })
+        .then(order => {
+            if (!order) {
+                return res.status(404).send({ message: "Order not found" });
+            }
+            return res.status(200).send(order);
+        })
+        .catch(error => {
+            console.error(error);
+            return res.status(500).send({ message: "Error retrieving order", error });
+        });
+};
