@@ -66,3 +66,20 @@ module.exports.retrieveMyOrders = (req, res) => {
             });
         });
 };
+
+// Retrieve All Orders (Admin)
+module.exports.retrieveAllOrders = (req, res) => {
+    return Order.find({})
+        .then(orders => {
+            return res.status(200).send({
+                orders: orders
+            });
+        })
+        .catch(error => {
+            console.error(error);
+            return res.status(500).send({
+                message: "Error retrieving all orders",
+                error: error
+            });
+        });
+};
