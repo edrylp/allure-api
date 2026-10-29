@@ -164,3 +164,16 @@ module.exports.updateUser = (req, res) => {
       });
   });
 };
+
+// Update Password
+module.exports.updatePassword = (req, res) => {
+
+  const { password } = req.body;
+
+  bcrypt.hash(password, 12)
+  .then(hashedPassword =>
+    User.findByIdAndUpdate(req.user.id, { password: hashedPassword })
+  )
+  .then(() => res.status(201).send({ message: "Password reset successfully" }))
+  .catch(() => res.status(500).send({ error: "Password reset failed" }));
+};
