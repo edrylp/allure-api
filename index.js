@@ -16,11 +16,13 @@ const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
 const serviceRoutes = require("./routes/serviceRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 
 app.use("/users", userRoutes);
 app.use("/products", productRoutes);
 app.use("/services", serviceRoutes);
 app.use("/cart", cartRoutes);
+app.use("/orders", orderRoutes);
 
 // Local development only
 if (require.main === module) {
