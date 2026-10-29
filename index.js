@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 const userRoutes = require("./routes/userRoutes");
-const productRoutes = require("./routes/product");
+const productRoutes = require("./routes/productRoutes");
 
 app.use("/users", userRoutes);
 app.use("/products", productRoutes);
