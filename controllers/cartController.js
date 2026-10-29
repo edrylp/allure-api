@@ -143,3 +143,40 @@ module.exports.updateCartQuantity = (req, res) => {
             });
         });
 };
+
+// Remove Item from Cart
+module.exports.removeFromCart = (req, res) => {
+    const userId = req.user.id; 
+    const {productId} = req.params;
+
+    return Cart.findOne({ userId })
+        .then(cart => {
+            if (!cart) {
+                return res.status(404).send({ message: "Cart not found" });
+            }
+
+            const updatedItems = cart.cartItems.filter(
+                item => item.productId.toString() !== productId
+            );
+
+            if (updatedItems.length === cart.cartItems.length) {
+                return res.status(404).send({ message: "Item not found in cart" });
+            }
+
+            cart.cartItems = updatedItems;
+            cart.totalPrice = cart.cartItems.reduce(
+                (total, item) => total + item.subtotal, 0
+            );
+            return cart.save();
+
+        })
+        .then(updatedCart => {
+            if (updatedCart) {
+                return res.status(200).send({
+                    message: "Item removed from cart successfully",
+                    cart: updatedCart
+                });
+            }
+        })
+        .catch((error) => errorHandler(error, req, res));
+};
