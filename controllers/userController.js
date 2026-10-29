@@ -108,3 +108,35 @@ module.exports.getProfiles = (req, res) => {
       });
   });
 };
+
+// Get A Specific Profile
+module.exports.getSingleProfile = (req, res) => {
+
+  const profileId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(profileId)) {
+    return res.status(400).send({ error: "Invalid profile ID" });
+  }
+
+  return User.findById(profileId)
+  .select("-password")
+  .then(user => {
+
+      if (!user) {
+        return res.status(404).send({ error: "Profile not found" });
+      }
+
+      // 🚨 BLOCK ADMIN PROFILE VIEW
+      if (user.isAdmin === true) {
+        return res.status(403).send({
+          error: "You are not allowed to view this profile"
+        });
+      }
+
+      return res.status(200).send(user);
+  })
+  .catch(err => {
+      console.error("Single profile error:", err);
+      return res.status(500).send({ error: "Failed to retrieve profile" });
+  });
+};
