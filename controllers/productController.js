@@ -200,3 +200,19 @@ module.exports.activateProduct = (req, res) => {
             });
         });
 };
+
+// Search Product by Name
+module.exports.searchProduct = (req, res) => {
+    const {name} = req.body;
+    if (!name) {
+        return res.status(400).send({ message: "Product name should not be blank" });
+    }
+    return Product.findOne({name})
+        .then(product => {
+            if (!product) {
+                return res.status(404).send({ message: "Product does not exist" });
+            }
+            return res.status(200).send(product);
+        })
+        .catch(error => errorHandler(error, req, res));
+};
